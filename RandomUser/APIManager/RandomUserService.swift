@@ -10,7 +10,7 @@ import Foundation
 
 class RandomUserService : APIRequest {
    
-    func getInfos(url: String, callback: @escaping (Result<UsersResult, UserError>) -> Void) {
+    func getInfos(url: String, callback: @escaping (Result<UsersCollections, UserError>) -> Void) {
         guard let url = URL(string: url) else {
             callback(.failure(UserError.badURL))
             return
@@ -23,18 +23,24 @@ class RandomUserService : APIRequest {
             }
             
             guard let responseData = data, let httpResponse = response as? HTTPURLResponse, 200..<300  ~= httpResponse.statusCode else {
-                callback(.failure(UserError.noInfoFound(data, response)))
+                callback(.failure(UserError.noInfoFound))
                 return
             }
             
             do {
                 // here we have data, so we try to decode into a list Anime
-                let listUsers = try JSONDecoder().decode(UsersResult.self, from: responseData)
+                
+              
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+                let listUsers = try decoder.decode(UsersCollections.self, from: responseData)
+                print(listUsers)
                 callback(.success(listUsers))
             } catch let jsonErr {
                 // if decode failed, return callback(.failure)
                 print("Erreur de décodage", jsonErr)
-                callback(.failure(UserError.noInfoFound(data, response)))
+                callback(.failure(UserError.noInfoFound))
             }
             
         }

@@ -5,11 +5,16 @@
 //  Created by Paul Ghibeaux on 23/02/2022.
 //
 
+// This file was generated from JSON Schema using quicktype, do not modify it directly.
+// To parse the JSON, add this file to your project and do:
+//
+//   let usersCollections = try? newJSONDecoder().decode(UsersCollections.self, from: jsonData)
+
 import Foundation
 
-// MARK: - HospitalCollections
-struct UserCollections: Codable {
-    let results: [UsersResult]
+// MARK: - UsersCollections
+struct UsersCollections: Codable {
+    let results: [UserInfos]
     let info: Info
 }
 
@@ -21,8 +26,8 @@ struct Info: Codable {
 }
 
 // MARK: - Result
-struct UsersResult: Codable {
-    let gender: String
+struct UserInfos: Codable {
+    let gender: Gender
     let name: Name
     let location: Location
     let email: String
@@ -40,14 +45,22 @@ struct Dob: Codable {
     let age: Int
 }
 
+enum Gender: String, Codable {
+    case female = "female"
+    case male = "male"
+}
+
 // MARK: - ID
 struct ID: Codable {
-    let name, value: String
+    let name: String
+    let value: String?
 }
 
 // MARK: - Location
 struct Location: Codable {
-    let street, city, state, postcode: String
+    let street: Street
+    let city, state, country: String
+    let postcode: Postcode
     let coordinates: Coordinates
     let timezone: Timezone
 }
@@ -55,6 +68,40 @@ struct Location: Codable {
 // MARK: - Coordinates
 struct Coordinates: Codable {
     let latitude, longitude: String
+}
+
+enum Postcode: Codable {
+    case integer(Int)
+    case string(String)
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let x = try? container.decode(Int.self) {
+            self = .integer(x)
+            return
+        }
+        if let x = try? container.decode(String.self) {
+            self = .string(x)
+            return
+        }
+        throw DecodingError.typeMismatch(Postcode.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for Postcode"))
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+            case .integer(let x):
+                try container.encode(x)
+            case .string(let x):
+                try container.encode(x)
+        }
+    }
+}
+
+// MARK: - Street
+struct Street: Codable {
+    let number: Int
+    let name: String
 }
 
 // MARK: - Timezone

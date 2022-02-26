@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class BasicTableViewController: UITableViewController  {
+class BasicTableViewController: UITableViewController, UITextFieldDelegate, UINavigationControllerDelegate  {
     
     // MARK: - Properties
     var viewModel: ViewModel?
@@ -19,7 +19,8 @@ class BasicTableViewController: UITableViewController  {
         self.viewModel = viewModel
         super.init(nibName: "BasicTableViewController", bundle: nil)
     }
-    
+    let controlRefresh = UIRefreshControl()
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
@@ -28,23 +29,72 @@ class BasicTableViewController: UITableViewController  {
         super.viewWillAppear(animated)
         
         guard (self.viewModel as? CellViewModel) != nil else {
-            navigationItem.title = viewModel?.titleTabBar
+            let tabBarOffset = -(self.tabBarController?.tabBar.frame.size.height ?? 0)
+            let emptyLoader = EmptyLoader(tabBarOffset: tabBarOffset)
+            self.tableView.updateEmptyScreen(emptyReason: emptyLoader)
+            self.refreshTableView()
             return
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-      
-        self.viewModel?.loadData {[weak self] _ in
-            self?.tableView.reloadData()
-            self?.registerCells()
+    
+    private func displayEmptyPage(error: EmptyError, tabBarOffSet: CGFloat) {
+        let empty = EmptyTextAndButton(tabBarOffset: tabBarOffSet,
+                                             customTitle: error.errorTitle ?? "",
+                                       customDescription: error.errorDescription ?? "",
+                                             image: UIImage(named: error.imageName ?? "noInternet")!,
+                                             buttonTitle: error.buttonTitle ?? "Error"){
+            
+            switch error.errorAction {
+                case .refresh:
+                    self.refreshTableView()
+                case .returnBack:
+                    self.navigationController?.popViewController(animated: true)
+                case .navigation :
+                    self.tabBarController?.selectedIndex = 0
+            }
+            
         }
         
+        self.tableView.updateEmptyScreen(emptyReason: empty)
+        self.tableView.reloadData()
+    }
+   
+    
+    @objc func refreshTableView() {
+        self.viewModel?.loadData { [weak self] error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    let tabBar = -(self?.tabBarController?.tabBar.frame.size.height ?? 0)
+                    self?.displayEmptyPage(error: error, tabBarOffSet: tabBar)
+                    
+                }
+                  
+            } else {
+                
+                DispatchQueue.main.async {
+                    self?.registerCells()
+                    self?.controlRefresh.endRefreshing()
+                    self?.tableView.reloadData()
+                }
+               
+            }
+        }
     }
     
     
     
+    override func viewDidLoad() {
+        let tabBarOffset = -(self.tabBarController?.tabBar.frame.size.height ?? 0)
+        let emptyLoader = EmptyLoader(tabBarOffset: tabBarOffset)
+        self.tableView.updateEmptyScreen(emptyReason: emptyLoader)
+        self.refreshTableView()
+        
+        controlRefresh.addTarget(self, action: #selector(self.refreshTableView), for: .valueChanged)
+        tableView.addSubview(controlRefresh)
+        navigationItem.title = viewModel?.titleTabBar
+        
+    }
     // MARK: - Register Cells
     public func registerCells() {
         // vm sections

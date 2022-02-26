@@ -18,9 +18,9 @@ struct EmptyLoader: EmptyProtocol {
     }
     
     var customView: UIView? {
-        let view = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 100, height: 100),
-                                           type: .lineScalePulseOut,
-                                           color: .label,
+        let view = NVActivityIndicatorView(frame: CGRect(x: 5, y: 10, width: 150, height: 150),
+                                           type: .pacman,
+                                           color: .secondaryLabel,
                                            padding: 16)
         view.startAnimating()
         return view

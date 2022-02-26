@@ -9,5 +9,5 @@ import Foundation
 
 
 protocol APIRequest {
-    func getInfos(url: String, callback: @escaping(Result<UsersResult, UserError>) -> Void)
+    func getInfos(url: String, callback: @escaping(Result<UsersCollections, UserError>) -> Void)
 }

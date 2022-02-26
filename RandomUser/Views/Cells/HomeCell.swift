@@ -7,7 +7,27 @@
 
 import UIKit
 
-class HomeCell: UITableViewCell {
+class HomeCell: UITableViewCell, CellConfigurable, UISearchBarDelegate {
+    
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    weak var myController : UIViewController?
+
+    
+    func configure(cellViewModel: CellViewModel, from controller: UIViewController) {
+        self.myController = controller
+        self.searchBar.delegate = self
+    }
+    
+    func cellPressed(cellViewModel: CellViewModel, from controller: UIViewController) {
+        
+    }
+    
+    
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        searchBar.becomeFirstResponder()
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
