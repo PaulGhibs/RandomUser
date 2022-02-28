@@ -18,3 +18,9 @@ protocol TableSection: Section {
     // define the height for each headers
     var heightForHeader: Int { get }
 }
+
+protocol CollectionSection: Section {
+    var headerVM: CollectionCellViewModel? { get }
+    var footerVM: CollectionCellViewModel? { get }
+    
+}

@@ -123,6 +123,7 @@ struct Login: Codable {
 // MARK: - Name
 struct Name: Codable {
     let title, first, last: String
+    
 }
 
 // MARK: - Picture

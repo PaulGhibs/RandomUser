@@ -16,7 +16,7 @@ class HomeController: UINavigationController {
         navigationBar.barTintColor = .lightGray
         navigationBar.tintColor = .blue
         
-       
     }
     
+   
 }

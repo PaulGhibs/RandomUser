@@ -1,44 +1,52 @@
 //
-//  HomeViewModel.swift
+//  SearchViewModel.swift
 //  RandomUser
 //
-//  Created by Paul Ghibeaux on 22/02/2022.
+//  Created by Paul Ghibeaux on 28/02/2022.
 //
+
 
 import Foundation
 
-class HomeViewModel: ViewModel  {
-  
-    var titleTabBar = NSLocalizedString("Home", comment: "")
-
-    var shouldDisplayBackButton = false
+// searchByUrl page
+class SearchViewModel: ViewModel {
+    var shouldDisplayBackButton: Bool = true
+    
+    var titleTabBar: String
+    
+    var title: String?
     var sections: [Section] = []
-    var url = "https://randomuser.me/api/?results=30"
+    var nextPage : Int?
+    var canLoadMore: Bool {
+        return nextPage != nil
+    }
+    var isFetchInProgress: Bool = false
+    var url: String
+    let apiService : APIRequest
     
-    var apiService: APIRequest
-    
-    init(apiService: APIRequest) {
+    // title reprensent the text in the navBar
+    // apiService : AnimeRequest in app, MockService in Tests
+    init(title: String, url: String, apiService: APIRequest){
+        self.title = title
+        self.url = url
         self.apiService = apiService
-    }
-    var updateLoadingStatus: (()->())?
+        self.titleTabBar = NSLocalizedString("Country results📍 ", comment: "")
 
-    // is requesting
-    var isLoading: Bool = false {
-        didSet {
-            self.updateLoadingStatus?()
-        }
     }
+    
+    // loadData is called in the controller
     func loadData(callback: @escaping (EmptyError?) -> ()) {
-        self.isLoading = true
-        // api service protocol with typed ingredients
-        _ = apiService.getInfos(url: self.url) { result in
+        apiService.getInfos(url: self.url) { result in
+            
             switch result {
-                case .failure(let error):
+                case .failure(let error) :
                     callback(error)
-                case .success(let users):
+                case .success(let users) :
+                    self.nextPage = users.info.page
+                    
                     var tempSections: [Section] = []
                     var listUsers = [UserInfos]()
-
+                    
                     
                     for user in users.results {
                         let name = user.name
@@ -60,21 +68,15 @@ class HomeViewModel: ViewModel  {
                         print(listUsers)
                         
                     }
-                  
+                    
                     let currentCollectionSection = HomeSection(userCollection: users)
-                        
+                    
                     tempSections.append(currentCollectionSection)
                     
                     
                     self.sections = tempSections
                     callback(nil)
-                    
             }
-            
-           
         }
-    
-    
     }
-    
 }

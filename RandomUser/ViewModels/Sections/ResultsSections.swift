@@ -1,22 +1,21 @@
 //
-//  HomeSection.swift
+//  ResultsSections.swift
 //  RandomUser
 //
-//  Created by Paul Ghibeaux on 22/02/2022.
+//  Created by Paul Ghibeaux on 28/02/2022.
 //
 
 import Foundation
 
-// MARK: - HomeSection
 
-class HomeSection: CollectionSection {
+class ResultSection: CollectionSection {
     var headerVM: CollectionCellViewModel?
     var footerVM: CollectionCellViewModel?
     // properties from section protocol
     var title: String?
     var position: Int
     var cellsVM: [CellViewModel]
-
+    
     
     init(userCollection: UsersCollections) {
         
@@ -26,10 +25,10 @@ class HomeSection: CollectionSection {
         // init country cell vm
         
         for user in userCollection.results {
-            self.headerVM = HeaderVM(userCollection: userCollection)
-            self.footerVM = WorldReusable()
+            
             self.cellsVM.append(HomeCellVM(userInfos: user, routingEntry: UserDetailRouting(user: user)))
-
+            
         }
     }
 }
+

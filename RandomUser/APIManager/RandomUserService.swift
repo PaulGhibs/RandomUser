@@ -11,42 +11,87 @@ import Foundation
 class RandomUserService : APIRequest {
    
     func getInfos(url: String, callback: @escaping (Result<UsersCollections, UserError>) -> Void) {
+        
+        
         guard let url = URL(string: url) else {
             callback(.failure(UserError.badURL))
             return
         }
+        let request = URLRequest(url: url)
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        URLSession.shared.dataTask(with: request) {data, response, error in
+            
             guard error == nil else {
-                callback(.failure(UserError.badURL))
-                return
+            callback(.failure(UserError.badURL))
+            return
             }
             
-            guard let responseData = data, let httpResponse = response as? HTTPURLResponse, 200..<300  ~= httpResponse.statusCode else {
+            guard let responseData = data, let httpResponse = response as? HTTPURLResponse, 200..<300  ~= httpResponse.statusCode else
+            {
                 callback(.failure(UserError.noInfoFound))
                 return
             }
             
-            do {
-                // here we have data, so we try to decode into a list Anime
-                
-              
+            if  responseData == data {
+                //pull out the declaration of the decoder object
                 let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-                let listUsers = try decoder.decode(UsersCollections.self, from: responseData)
-                print(listUsers)
-                callback(.success(listUsers))
-            } catch let jsonErr {
-                // if decode failed, return callback(.failure)
-                print("Erreur de décodage", jsonErr)
-                callback(.failure(UserError.noInfoFound))
+                //set how we want to interpret dates in the JSON
+                decoder.dateDecodingStrategy = .iso8601
+                //decode directly to an array of User structs rather than a Response
+                if let decodedResponse = try?
+                    decoder.decode(UsersCollections.self, from: data!) {
+                   
+                    DispatchQueue.main.async {
+                        //decodedResponse is now [User] rather than Response.User
+                        callback(.success(decodedResponse))
+                    }
+                    return
+                }
             }
+            print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
             
-        }
-        task.resume()
-        
+        }.resume()
     }
+//        guard let url = URL(string: url) else {
+//            callback(.failure(UserError.badURL))
+//            return
+//        }
+//
+//        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+//            guard error == nil else {
+//                callback(.failure(UserError.badURL))
+//                return
+//            }
+//
+//            guard let responseData = data, let httpResponse = response as? HTTPURLResponse, 200..<300  ~= httpResponse.statusCode else {
+//                callback(.failure(UserError.noInfoFound))
+//                return
+//            }
+//
+//            do {
+//                // here we have data, so we try to decode into a list users
+//
+//
+//                let decoder = JSONDecoder()
+//
+//
+//
+//                    let listUsers = try decoder.decode(UsersCollections.self, from: responseData)
+//                    print(listUsers)
+//                callback(.success(listUsers))
+//
+//
+//            } catch let jsonErr {
+//                // if decode failed, return callback(.failure)
+//                print("Erreur de décodage", jsonErr)
+//                callback(.failure(UserError.noInfoFound))
+//            }
+//
+//
+//        }
+//        task.resume()
+//
+//    }
     
     
 }

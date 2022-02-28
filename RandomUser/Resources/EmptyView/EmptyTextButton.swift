@@ -55,7 +55,7 @@ struct EmptyTextAndButton: EmptyProtocol {
     
     // Background Color button
     var buttonBackgroundImage: UIImage? {
-        let image = UIImage(named: "goldButton")
+        let image = UIImage(named: "button")
         return image!
     }
     
