@@ -35,7 +35,7 @@ should keep in mind:
 • cover some classes with tests (no need to cover everything)
 • target: min iOS13
 
-<img width="564" alt="Capture d’écran 2022-03-01 à 15 14 38" src="https://user-images.githubusercontent.com/7050604/156185184-cefa01dc-a969-405f-bfac-8fa83b73536a.png">
-<img width="564" alt="Capture d’écran 2022-03-01 à 15 14 27" src="https://user-images.githubusercontent.com/7050604/156185201-32d5ac97-103a-4ce5-8eff-74ae9c616c77.png">
+<img width="264" alt="Capture d’écran 2022-03-01 à 15 14 38" src="https://user-images.githubusercontent.com/7050604/156185184-cefa01dc-a969-405f-bfac-8fa83b73536a.png">
+<img width="264" alt="Capture d’écran 2022-03-01 à 15 14 27" src="https://user-images.githubusercontent.com/7050604/156185201-32d5ac97-103a-4ce5-8eff-74ae9c616c77.png">
 
 Finish line : Tech Docs
