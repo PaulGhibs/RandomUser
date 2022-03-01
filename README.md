@@ -1,5 +1,5 @@
 # Random User App
-RandomUser get informations from this API https://randomuser.me/documentation. 
+RandomUser get informations from this API https://randomuser.me/documentation. <br/>
 And show you a worldwide users, or each country code users.
 
 ## How it works?
