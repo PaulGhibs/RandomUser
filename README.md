@@ -17,7 +17,7 @@ application should display users first, last names and their picture on the deta
 
 ##  Code guidelines
 Use any third-party libraries you'd need. <br/>
--> 
+-><br/> 
   pod 'NVActivityIndicatorView'<br/>
   pod "EmptyDataSet-Swift", <br/>
   pod 'SDWebImage', <br/>
