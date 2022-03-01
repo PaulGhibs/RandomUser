@@ -1,5 +1,3 @@
-# RandomUser
-
 # Random User App
 RandomUser get informations from this API https://randomuser.me/documentation. 
 And show you a worldwide users, or each country code users.
@@ -34,7 +32,6 @@ should keep in mind:
 • apply developers good practices (SOLID, KISS, DRY etc.)
 • cover some classes with tests (no need to cover everything)
 • target: min iOS13
+## Finish line
+<img width="446" alt="image" src="https://user-images.githubusercontent.com/7050604/156188293-66f13ec9-d6c5-40b6-99a9-84aefdb8fad6.png">
 
-<img width="473" alt="image" src="https://user-images.githubusercontent.com/7050604/156187151-0c774628-ba9f-4d29-afa4-8dea90408f9a.png">
-
-Finish line : Tech Docs
