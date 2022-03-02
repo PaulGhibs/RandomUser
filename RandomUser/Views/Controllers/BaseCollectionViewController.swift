@@ -13,10 +13,10 @@ class BaseCollectionViewController: UICollectionViewController {
     
     var viewModel: ViewModel?
     var compositionalLayout: CompositionalLayoutProtocol?
-    
     let controlRefresh = UIRefreshControl()
 
-    
+    fileprivate var activityIndicator: LoadMoreActivityIndicator!
+
     init(viewModel: ViewModel,
          compositionalLayout: CompositionalLayoutProtocol) {
         self.viewModel = viewModel
@@ -31,7 +31,7 @@ class BaseCollectionViewController: UICollectionViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        guard (self.viewModel as? HomeViewModel) != nil else {
+        guard (self.viewModel as? UserPageViewModel) != nil else {
         let tabBarOffset = -(self.tabBarController?.tabBar.frame.size.height ?? 0)
         let emptyLoader = EmptyLoader(tabBarOffset: tabBarOffset)
         self.collectionView.updateEmptyScreen(emptyReason: emptyLoader)
@@ -50,8 +50,11 @@ class BaseCollectionViewController: UICollectionViewController {
         let emptyLoader = EmptyLoader(tabBarOffset: tabBarOffset)
         self.collectionView.updateEmptyScreen(emptyReason: emptyLoader)
         
+        activityIndicator = LoadMoreActivityIndicator(scrollView: collectionView, spacingFromLastCell: 10, spacingFromLastCellWhenLoadMoreActionStart: 60)
         controlRefresh.addTarget(self, action: #selector(self.refreshCollection), for: .valueChanged)
         collectionView.addSubview(controlRefresh)
+        
+        collectionView.prefetchDataSource = self
 
         
         // Set layout if we have one
@@ -100,11 +103,9 @@ class BaseCollectionViewController: UICollectionViewController {
                 
             } else {
                 self?.registerCells()
+                self?.controlRefresh.endRefreshing()
+                self?.collectionView.reloadData()
                 
-                DispatchQueue.main.async {
-                    self?.controlRefresh.endRefreshing()
-                    self?.collectionView.reloadData()
-                }
                 
             }
         }
@@ -200,7 +201,7 @@ class BaseCollectionViewController: UICollectionViewController {
         let reuseIdentifier = cellVM.reuseIdentifier
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
                                                       for: indexPath)
-        
+
         // Configure the cell
         
         return cell
@@ -211,6 +212,7 @@ class BaseCollectionViewController: UICollectionViewController {
             return
         }
         
+        collectionView.prefetchDataSource = self
         cell.configure(cellViewModel: cellVM,
                        from: self)
     }
@@ -222,7 +224,6 @@ class BaseCollectionViewController: UICollectionViewController {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellVM.reuseIdentifier,
                                                       for: indexPath)
-        
         cell.cellPressed(cellViewModel: cellVM,
                          from: self)
         
@@ -280,4 +281,54 @@ class BaseCollectionViewController: UICollectionViewController {
         
     }
     
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        activityIndicator.start {
+            DispatchQueue.global(qos: .utility).async {
+                self.viewModel?.loadData { [weak self] error in
+                    if let error = error {
+                        let tabBar = -(self?.tabBarController?.tabBar.frame.size.height ?? 0)
+                        self?.displayEmptyPage(error: error, tabBarOffSet: tabBar)
+                        
+                    } else {
+                        self?.registerCells()
+                        self?.controlRefresh.endRefreshing()
+                        self?.collectionView.reloadData()
+                        
+                        
+                    }
+                }
+                DispatchQueue.main.async { [weak self] in
+                    self?.activityIndicator.stop()
+                    
+                    self?.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    
+    
+  
+    
+}
+
+extension BaseCollectionViewController : UICollectionViewDataSourcePrefetching {
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        prefetchItemsAt indexPaths: [IndexPath]) {
+        guard let vm = self.viewModel as? InfiniteViewModel else {
+            return
+        }
+        
+        if indexPaths.contains(where: vm.isLoadingSection) && vm.canLoadMore {
+            vm.loadMore { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.registerCells()
+                    self?.collectionView.reloadData()
+                    
+                }
+               
+            }
+        }
+    }
 }

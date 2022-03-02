@@ -36,10 +36,7 @@ struct HomeLayout: CompositionalLayoutProtocol {
             
             let headerItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerItemSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
             
-            let footer = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: footerHeaderSize,
-                                                                     elementKind: UICollectionView.elementKindSectionFooter,
-                                                                     alignment: .bottomLeading)
-            section.boundarySupplementaryItems = [headerItem, footer]
+            section.boundarySupplementaryItems = [headerItem]
             
             return section
         })

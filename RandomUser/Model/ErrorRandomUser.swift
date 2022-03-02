@@ -50,9 +50,9 @@ enum UserError: EmptyError {
     var imageName: String? {
         switch self {
             case .badURL:
-                return "noResult"
+                return "road"
             case .noInfoFound:
-                return "no infos"
+                return "noData"
             case .noNetwork:
                 return "noInternet"
         }

@@ -27,7 +27,6 @@ class HomeSection: CollectionSection {
         
         for user in userCollection.results {
             self.headerVM = HeaderVM(userCollection: userCollection)
-            self.footerVM = WorldReusable()
             self.cellsVM.append(HomeCellVM(userInfos: user, routingEntry: UserDetailRouting(user: user)))
 
         }
