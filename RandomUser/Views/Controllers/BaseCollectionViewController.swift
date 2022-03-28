@@ -30,7 +30,11 @@ class BaseCollectionViewController: UICollectionViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        // Load data and register cells
+        self.viewModel?.loadData { [weak self] error in
+            self?.registerCells()
+            self?.collectionView.reloadData()
+        }
         guard (self.viewModel as? UserPageViewModel) != nil else {
         let tabBarOffset = -(self.tabBarController?.tabBar.frame.size.height ?? 0)
         let emptyLoader = EmptyLoader(tabBarOffset: tabBarOffset)
@@ -54,7 +58,6 @@ class BaseCollectionViewController: UICollectionViewController {
         controlRefresh.addTarget(self, action: #selector(self.refreshCollection), for: .valueChanged)
         collectionView.addSubview(controlRefresh)
         
-        collectionView.prefetchDataSource = self
 
         
         // Set layout if we have one
@@ -62,11 +65,7 @@ class BaseCollectionViewController: UICollectionViewController {
             collectionView.collectionViewLayout = layout.create()
         }
         
-        // Load data and register cells
-        self.viewModel?.loadData { error in
-            self.registerCells()
-            self.collectionView.reloadData()
-        }
+        
     }
     
     
@@ -203,7 +202,7 @@ class BaseCollectionViewController: UICollectionViewController {
                                                       for: indexPath)
 
         // Configure the cell
-        
+
         return cell
     }
     
@@ -212,7 +211,6 @@ class BaseCollectionViewController: UICollectionViewController {
             return
         }
         
-        collectionView.prefetchDataSource = self
         cell.configure(cellViewModel: cellVM,
                        from: self)
     }
@@ -226,7 +224,7 @@ class BaseCollectionViewController: UICollectionViewController {
                                                       for: indexPath)
         cell.cellPressed(cellViewModel: cellVM,
                          from: self)
-        
+
     }
     
     
@@ -284,23 +282,13 @@ class BaseCollectionViewController: UICollectionViewController {
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         activityIndicator.start {
             DispatchQueue.global(qos: .utility).async {
-                self.viewModel?.loadData { [weak self] error in
-                    if let error = error {
-                        let tabBar = -(self?.tabBarController?.tabBar.frame.size.height ?? 0)
-                        self?.displayEmptyPage(error: error, tabBarOffSet: tabBar)
-                        
-                    } else {
-                        self?.registerCells()
-                        self?.controlRefresh.endRefreshing()
-                        self?.collectionView.reloadData()
-                        
-                        
-                    }
+                for i in 0..<3 {
+                    print("!!!!!!!!! \(i)")
+                    sleep(1)
                 }
                 DispatchQueue.main.async { [weak self] in
                     self?.activityIndicator.stop()
                     
-                    self?.collectionView.reloadData()
                 }
             }
         }

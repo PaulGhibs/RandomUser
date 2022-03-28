@@ -7,7 +7,7 @@
 
 import Foundation
 
-class HomeViewModel: InfiniteViewModel  {
+class HomeViewModel: ViewModel  {
     
     var titleTabBar = NSLocalizedString("Home", comment: "")
     var shouldDisplayBackButton = false
@@ -15,10 +15,14 @@ class HomeViewModel: InfiniteViewModel  {
     
     var url = "https://randomuser.me/api/?results=20"
     var nextPage : String?
-    var canLoadMore: Bool {
-        return nextPage != nil
+    // is requesting
+    var isLoading: Bool = false {
+        didSet {
+            self.updateLoadingStatus?()
+        }
     }
-    var isFetchInProgress: Bool = false
+    var updateLoadingStatus: (()->())?
+    
 
     var apiService: APIRequest
     
@@ -28,6 +32,8 @@ class HomeViewModel: InfiniteViewModel  {
 
   
     func loadData(callback: @escaping (EmptyError?) -> ()) {
+        self.isLoading = true
+
         // api service protocol with typed ingredients
         _ = apiService.getInfos(url: self.url) { result in
             switch result {
@@ -66,10 +72,10 @@ class HomeViewModel: InfiniteViewModel  {
                     
                     
                     self.sections = tempSections
-                    callback(nil)
                     
             }
-            
+            callback(nil)
+
            
         }
     
@@ -77,61 +83,61 @@ class HomeViewModel: InfiniteViewModel  {
     }
     
     
-    func loadMore(callback: @escaping (EmptyError?) -> ()) {
-        guard !isFetchInProgress, let next = self.nextPage  else {
-            return
-        }
-        self.isFetchInProgress = true
-        
-        let urlNextPage = ("\(self.url)&page=\(next)")
-        print(urlNextPage)
-        
-        // api service protocol with typed ingredients
-        _ = apiService.getInfos(url: urlNextPage) { result in
-            switch result {
-                case .failure(let error):
-                    callback(error)
-                case .success(let users):
-                    self.nextPage = String(users.info.page)
-                    
-                    var tempSections: [Section] = []
-                    var listUsers = [UserInfos]()
-                    
-                    
-                    for user in users.results {
-                        let name = user.name
-                        let picture = user.picture
-                        let city = user.location
-                        let phone = user.phone
-                        let gender = user.gender
-                        let email = user.email
-                        let login = user.login
-                        let dob = user.dob
-                        let registered = user.registered
-                        let nat = user.nat
-                        let id = user.id
-                        let cell = user.cell
-                        
-                        let userPage = UserInfos(gender: gender, name: name, location: city, email: email, login: login, dob: dob, registered: registered, phone: phone, cell: cell, id: id, picture: picture, nat: nat)
-                        
-                        listUsers.append(userPage)
-                        print(listUsers)
-                        
-                    }
-                    
-                    let currentCollectionSection = HomeSection(userCollection: users)
-                    
-                    tempSections.append(currentCollectionSection)
-                    
-                    self.isFetchInProgress = false
-
-                    self.sections = tempSections
-                    callback(nil)
-                    
-            }
-            
-            
-        }
-    }
+//    func loadMore(callback: @escaping (EmptyError?) -> ()) {
+//        guard !isFetchInProgress, let next = self.nextPage  else {
+//            return
+//        }
+//        self.isFetchInProgress = true
+//        
+//        let urlNextPage = ("\(self.url)&page=\(next)")
+//        print(urlNextPage)
+//        
+//        // api service protocol with typed ingredients
+//        _ = apiService.getInfos(url: urlNextPage) { result in
+//            switch result {
+//                case .failure(let error):
+//                    callback(error)
+//                case .success(let users):
+//                    self.nextPage = String(users.info.page)
+//                    
+//                    var tempSections: [Section] = []
+//                    var listUsers = [UserInfos]()
+//                    
+//                    
+//                    for user in users.results {
+//                        let name = user.name
+//                        let picture = user.picture
+//                        let city = user.location
+//                        let phone = user.phone
+//                        let gender = user.gender
+//                        let email = user.email
+//                        let login = user.login
+//                        let dob = user.dob
+//                        let registered = user.registered
+//                        let nat = user.nat
+//                        let id = user.id
+//                        let cell = user.cell
+//                        
+//                        let userPage = UserInfos(gender: gender, name: name, location: city, email: email, login: login, dob: dob, registered: registered, phone: phone, cell: cell, id: id, picture: picture, nat: nat)
+//                        
+//                        listUsers.append(userPage)
+//                        print(listUsers)
+//                        
+//                    }
+//                    
+//                    let currentCollectionSection = HomeSection(userCollection: users)
+//                    
+//                    tempSections.append(currentCollectionSection)
+//                    
+//                    self.isFetchInProgress = false
+//
+//                    self.sections = tempSections
+//                    callback(nil)
+//                    
+//            }
+//            
+//            
+//        }
+//    }
     
 }
